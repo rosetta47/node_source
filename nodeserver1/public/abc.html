@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>직원 목록</h1>
+<ul id="emp-list"></ul>
+
+<div>
+    get : <button id="get-emps">직원 정보 요청 (Get)</button>
+</div>
+<div>
+    post : <input type="text" id="emp-name" placeholder="직원명 입력" required>
+    <button id="add-emp">직원 추가</button>
+</div>
+
+<!--JS-->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const empList = document.getElementById("emp-list");
+        const empNameInput = document.getElementById("emp-name");
+        const getEmpButton = document.getElementById("get-emps");
+        const addEmpButton = document.getElementById("add-emp");
+
+        // get 요청으로 직원 정보 읽기(ajax 사용)
+        getEmpButton.addEventListener('click', () => {
+            fetch('/employees') //get요청이 생략된거임
+            .then(response => response.json()) //String으로 자료가 받아지니까 json으로 바꿔
+            .then(data => {
+                empList.innerHTML = ''; //출력하기전에 출력 장소 초기화함
+                data.forEach(emp => {
+                    const li = document.createElement("li"); //li 태그를 만들꺼야
+                    li.textContent = emp.name; //li 안에 name을 입력할꺼야
+                    empList.appendChild(li);
+
+                });
+            })
+            .catch(error => console.error('에러 : ' , error));
+        });
+
+         // get 요청으로 직원 정보 읽기
+         addEmpButton.addEventListener('click', () => {
+            const newEmp = {id:Date.now(), name:empNameInput.value};
+
+            fetch('/employees', {
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify(newEmp) // 전송시 js객체를 json 문자열로 변환 후 전송
+            })
+            .then(response => response.json())
+            .then(emp => {
+                    const li = document.createElement("li"); 
+                    li.textContent = emp.name; 
+                    empList.appendChild(li);
+                    empNameInput.value=''; // 입력한 내용은 지우기
+                })
+                .catch(error => console.error('추가 에러 : ' , error));
+         });
+         // let stu = {name:'tom',age:22} --> stringify 하면 {'name':'tom','age':22} 로 바뀜(키에도 값에도 '' 가 붙어짐)
+    });
+</script>
+</body>
+</html>
