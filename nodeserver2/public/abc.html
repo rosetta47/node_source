@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+          color: #1a1c20;
+        }
+        input {
+          width: 70px;
+          border: 1px tomato solid;
+          border-radius: 4px;
+          padding: 5px;
+          color: tomato;
+        }
+  
+        input:focus {
+          outline: 1px solid tomato;
+        }
+  
+        ::placeholder {
+          color: tomato;
+        }
+  
+        button {
+          border: none;
+          background-color: rgb(0, 140, 255);
+          color: tomato;
+          border-radius: 5px;
+          padding: 6px;
+          font-weight: bold;
+        }
+  
+        hr {
+          background-color: greenyellow;
+          height: 1px;
+          border: none;
+        }
+        li::marker {
+          color: tomato;
+        }
+      </style>
+</head>
+<body>
+    <div>
+        <h2>🍅 모든 회원(GET)</h2>
+        <button id="get-emps">모든 회원 읽기</button>
+        <ul id="emp-list"></ul>
+    </div>
+
+    <div>
+        <h2>회원 추가(POST)</h2>
+        <input type="text" id="new-emp-name" placeholder="이름"/>
+        <input type="text" id="new-emp-position" placeholder="업무"/>
+        <button id="add-emp">회원 추가</button>
+    </div>
+
+    <div>
+        <h2>회원 수정(PUT)</h2>
+        <input type="number" id="update-emp-id" placeholder="id" />
+        <input type="text" id="update-emp-name" placeholder="이름"/>
+        <input type="text" id="update-emp-position" placeholder="업무"/>
+        <button id="update-emp">회원 수정</button>
+    </div>
+
+    <div>
+        <h2>회원 삭제(DELETE)</h2>
+        <input type="number" id="delete-emp-id" placeholder="id" />
+        <button id="delete-emp">회원 삭제</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () =>{
+            const empList = document.getElementById('emp-list');    // 모든 회원 읽기 출력
+            const getEmpButton = document.getElementById('get-emps');
+            const addEmpButton = document.getElementById('add-emp');
+            const updateEmpButton = document.getElementById('update-emp');
+            const deleteEmpButton = document.getElementById('delete-emp');
+
+            // 1. GET 요청으로 전체 직원 읽기 요청
+            getEmpButton.addEventListener('click', () => {
+                fetch('/emp')
+                .then(response => response.json())
+                .then(data => {
+                    empList.innerHTML = ''; // 초기화를 위해 비워줌
+
+                    data.forEach(emp => {
+                        const li = document.createElement('li');
+                        li.textContent = `${emp.id} : ${emp.name} - ${emp.position}`;
+                        empList.appendChild(li);
+                    })
+                })
+                .catch(error => console.log('err fetch:', error))
+            });
+
+            // 2. POST 요청으로 새 직원 추가
+            addEmpButton.addEventListener('click', () => {
+                const name = document.getElementById('new-emp-name').value;
+                const position = document.getElementById('new-emp-position').value;
+
+                fetch('/emp',{
+                    method:'POST', 
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify({name, position})
+                })
+                .then(response => response.json())
+                .then(emp => {
+                        const li = document.createElement('li');
+                        li.textContent = `${emp.id} : ${emp.name} - ${emp.position}`;
+                        empList.appendChild(li);
+                    })
+                    .catch(error => console.log('err add:', error))
+                });
+
+                  // 3. PUT 요청으로 직원 수정
+            updateEmpButton.addEventListener('click', () => {
+                const id = document.getElementById('update-emp-id').value;
+                const name = document.getElementById('update-emp-name').value;
+                const position = document.getElementById('update-emp-position').value;
+
+                fetch(`/emp/${id}`,{
+                    method:'PUT', 
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify({name, position})
+                })
+                .then(response => {
+                    if(!response.ok){
+                        throw new Error('수정 네트워크 오류')
+                    }
+                    return response.json();
+                })
+                .then(emp => {
+                        alert(`수정 성공 : ${emp.name} - ${emp.position}`);
+                    })
+                    .catch(error => console.log('err update:', error));
+                });
+
+                // 4. DELETE 요청으로 직원 삭제
+                deleteEmpButton.addEventListener('click', () => {
+                const id = document.getElementById('delete-emp-id').value;
+
+                fetch(`/emp/${id}`,{
+                    method:'DELETE'
+                })
+                .then(response => {
+                    if(!response.ok){
+                        throw new Error('삭제 네트워크 오류')
+                    }
+                    return response.json();
+                })
+                .then(emp => {
+                        alert(`삭제 성공 : ${emp.name} - ${emp.position}`);
+                    })
+                    .catch(error => console.log('err delete:', error));
+                });
+            });
+    </script>
+</body>
+</html>

@@ -46,6 +46,28 @@ app.post('/login', (req,res) => {
   }
 });
 
+app.get('/main', (req,res) => {
+    // 사용자가 로그인 한 경우에 main.ejs 파일을 호출
+    if(req.session.user){
+        res.render('main',{sessionID:req.sessionID});
+    }else{
+        res.send('접근 권한이 없음 <a href="/">로그인</a>');
+    }
+});
+
+// 세션 삭제중 오류가 있으면 메인으로 돌아감
+app.get('/logout', (req,res) => {
+    req.session.destroy(err =>{ // 세션을 삭제
+        if(err){
+
+            return res.redirect('/main');
+        }
+    })
+
+    res.clearCookie('connect.sid'); // 세션 쿠키도 삭제
+    res.redirect('/');
+});
+
 // listen
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT} 로 서비스 시작...`)
