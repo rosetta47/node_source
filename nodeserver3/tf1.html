@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis/dist/tfjs-vis.umd.min.js"></script>
+    <script type="module">
+        function abc(){// 따로 server.mjs만들어서 해도 됨
+            const model = tf.sequential()//순차적으로 만듬
+            model.add(tf.layers.dense({units:1, inputShape:[1]}));//모델을 만듬 :  1개를 1치원배열로 만든
+
+              // 모델을 학습시킬 준비
+    model.compile({loss:'meanSquaredError', optimizer:'sgd'});
+    //https://angeloyeo.github.io/2020/08/16/gradient_descent.html#google_vignette
+    // 경사 하강법(Gradient descent)은,
+    // 함수의 값이 낮아지는 방향으로 각 독립변수들의 값을 변형시키면서 함수가 최솟값을 갖도록 하는 독립변수의 값을 탐색 방법을 의미하며 일반적으로 입력된 Parameter의 검증(Validation)이 필요할 때 사용됩니다.
+
+            // 학습 준비
+            model.compile({loss:'meanSquaredError', optimizer:'sgd'});
+            // 학습 데이터 
+            const xs = tf.tensor2d([1,2,3,4,5],[5,1]); // 독립변수  //1차원 자료를 5행1열로 바꿈 
+            const ys = tf.tensor1d([1,3,5,7,9]); // 종속 변수  --> 1일때 1, 2일때 3,3일때 5 ... 을 학습시키려고 하는 거임
+            // 모델 학습
+
+            model.fit(xs,ys)
+                .then(() => {
+                    // 학습된 모델로 추론
+                    const prediction = model.predict(tf.tensor2d([6],[1, 1])) // 미지의 데이터(여기서 6를 입력하면 어케 나오는지 궁금해) 
+                    // 사용예 :10년동안 투자결과가 이랬음 내년 투자결과 예상하기
+                    prediction.print();
+                    document.getElementById("aa").innerHTML = prediction.dataSync();
+
+                    chart(); // chart 보여줘
+                })
+                .catch(error => {
+                    console.log('err: ' + error);
+                });
+                function getData(){
+                    const dataX = xs.dataSync();
+                    const dataY = ys.dataSync();
+                    return Array.from(dataX).map((value, index) => {
+                        return {index:value, value:dataY[index]}
+                    });
+
+                }
+                function chart(){
+                    const surface = tfvis.visor().surface({name:'Barchart', tab:'Charts'});
+                    tfvis.render.barchart(surface, getData());
+                }
+
+        }
+        window.abc = abc;// 전역으로 abc 함수를 할당하고 버튼 눌러서 실행
+    </script>
+
+</head>
+<body>
+    회귀 기본 이해<br>
+    <button onclick="abc()">결과보기</button>
+    <hr>
+    <div id="aa">
+    </div>
+</body>
+</html>

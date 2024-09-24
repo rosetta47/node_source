@@ -14,4 +14,27 @@ fs.writeFile('./ex3write.txt', ss)
     console.log('err', err);
 })
 
+// 평가시험 연습
+function add(num1, num2){
+    return num1 + num2;
+}
 
+function main(operator){
+    const result = operator(4, 7);
+    console.log(result);
+}
+
+
+
+function fetchData(){
+    console.log('3강만세');
+ }
+ 
+ var timerVar = setTimeout( timer, 3000);
+
+ fs.readFile('./example.txt')
+ .then((data) => {
+ console.log('노드여 영원하라', data.toString());
+ return fs.readFile('./example.txt');
+ })
+ 
